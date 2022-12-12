@@ -10,6 +10,18 @@ let mode = "sec";
 
 const START = new Date(2022, 8, 2);
 
+const color = 0x006699;
+const matDark = new THREE.LineBasicMaterial({
+  color: color,
+  side: THREE.DoubleSide,
+});
+const matLite = new THREE.MeshBasicMaterial({
+  color: color,
+  transparent: true,
+  opacity: 0.4,
+  side: THREE.DoubleSide,
+});
+
 function init() {
   canvas = document.querySelector("canvas.webgl");
   camera = new THREE.PerspectiveCamera(
@@ -57,6 +69,7 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
+  f;
 
   render();
 }
@@ -69,20 +82,8 @@ function generateText(font, message) {
   if (font == undefined) {
     return;
   }
-  const color = 0x006699;
-  const matDark = new THREE.LineBasicMaterial({
-    color: color,
-    side: THREE.DoubleSide,
-  });
 
-  const matLite = new THREE.MeshBasicMaterial({
-    color: color,
-    transparent: true,
-    opacity: 0.4,
-    side: THREE.DoubleSide,
-  });
-
-  const shapes = font.generateShapes(message, 100);
+  const shapes = font.generateShapes(message, window.innerWidth / 12);
 
   const geometry = new THREE.ShapeGeometry(shapes);
 
@@ -132,9 +133,9 @@ function generateText(font, message) {
   addTextToScene(lineText);
 }
 
+const fps = 25;
 // animate
 const tick = () => {
-  const currentTime = Date.now();
   removeTextFromScene();
   if (mode == "sec") {
     generateText(font, getAccumSeconds().toString());
@@ -143,7 +144,9 @@ const tick = () => {
   }
 
   renderer.render(scene, camera);
-  window.requestAnimationFrame(tick);
+  setTimeout(() => {
+    window.requestAnimationFrame(tick);
+  }, 1000 / fps);
 };
 
 function getAccumSeconds() {
@@ -166,8 +169,12 @@ function addTextToScene(obj) {
 function removeTextFromScene() {
   textObjs.map((uuid) => {
     const object = scene.getObjectByProperty("uuid", uuid);
-    // object.geometry.dispose();
-    // object.material.dispose();
+    if (object.hasOwnProperty("geometry")) {
+      object.geometry.dispose();
+    }
+    if (object.hasOwnProperty("material")) {
+      object.material.dispose();
+    }
     scene.remove(object);
   });
   textObjs = [];
