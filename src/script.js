@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 
+import "./style.css";
+
 let canvas, camera, scene, renderer;
 let font;
 let textObjs = [];
